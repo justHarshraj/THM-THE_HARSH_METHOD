@@ -56,7 +56,7 @@ export interface Settings {
   focusMode: boolean;
 }
 
-export type TimerMode = 'Stopwatch' | 'Focus' | 'Break';
+export type TimerMode = 'Stopwatch' | 'Timer' | 'Focus' | 'Break';
 
 export interface AppState {
   todos: Todo[];
@@ -70,7 +70,7 @@ export interface AppState {
   timerMode: TimerMode;
   timerTime: number;
   timerDurations: {
-    Stopwatch: number;
+    Timer: number;
     Focus: number;
     Break: number;
   };
@@ -120,7 +120,7 @@ export const useAppStore = create<AppState>()((set) => ({
   timerMode: 'Focus', // Changed default to Focus as it's a Focus Timer app
   timerTime: 25 * 60,
   timerDurations: {
-    Stopwatch: 0,
+    Timer: 10 * 60,
     Focus: 25 * 60,
     Break: 5 * 60,
   },

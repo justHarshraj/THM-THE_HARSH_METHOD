@@ -24,8 +24,8 @@ export function AppLayout() {
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     
-    // Stopwatch counts down if its duration is set > 0, otherwise it counts up. Focus and Break always count down.
-    const isCountdown = timerMode !== 'Stopwatch' || timerDurations.Stopwatch > 0;
+    // Stopwatch counts up, everything else (Timer, Focus, Break) counts down.
+    const isCountdown = timerMode !== 'Stopwatch';
     
     if (timerIsActive && (!isCountdown || timerTime > 0)) {
       interval = setInterval(() => {
@@ -50,9 +50,9 @@ export function AppLayout() {
         // Auto-switch to focus
         setTimerMode('Focus');
         setTimerTime(timerDurations.Focus);
-      } else if (timerMode === 'Stopwatch') {
-        // Countdown stopwatch finished
-        setTimerTime(timerDurations.Stopwatch);
+      } else if (timerMode === 'Timer') {
+        // Timer countdown finished
+        setTimerTime(timerDurations.Timer);
       }
     }
 

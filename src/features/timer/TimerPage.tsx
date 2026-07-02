@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAppStore, type TimerMode } from '../../store';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Clock, Play, Pause, Square, Save, Timer as TimerIcon, List, Brain, Coffee } from 'lucide-react';
+import { Clock, Play, Pause, Square, Save, Timer as TimerIcon, List, Brain, Coffee, Hourglass } from 'lucide-react';
 import { format } from 'date-fns';
 
 export const TimerPage = () => {
@@ -25,7 +25,9 @@ export const TimerPage = () => {
 
   // Keep local edit minutes in sync
   useEffect(() => {
-    setEditMinutes(Math.floor(timerDurations[timerMode] / 60).toString());
+    if (timerMode !== 'Stopwatch') {
+      setEditMinutes(Math.floor(timerDurations[timerMode] / 60).toString());
+    }
   }, [timerMode, timerDurations]);
 
   const handleTimeSubmit = (e?: React.FormEvent) => {
@@ -67,15 +69,15 @@ export const TimerPage = () => {
   
   const handleReset = () => {
     setTimerIsActive(false);
-    setTimerTime(timerDurations[timerMode]);
+    setTimerTime(timerMode === 'Stopwatch' ? 0 : timerDurations[timerMode]);
   };
 
   const handleSave = async () => {
-    if (timerTime === 0 && timerMode === 'Stopwatch' && timerDurations.Stopwatch === 0) return;
+    if (timerTime === 0 && timerMode === 'Stopwatch') return;
     
     setIsSaving(true);
     
-    const isCountdown = timerMode !== 'Stopwatch' || timerDurations.Stopwatch > 0;
+    const isCountdown = timerMode !== 'Stopwatch';
     const duration = isCountdown ? (timerDurations[timerMode] - timerTime) : timerTime;
     
     if (duration > 0) {
@@ -93,18 +95,21 @@ export const TimerPage = () => {
   const switchMode = (newMode: TimerMode) => {
     setTimerMode(newMode);
     setTimerIsActive(false);
-    setTimerTime(timerDurations[newMode]);
+    setTimerTime(newMode === 'Stopwatch' ? 0 : timerDurations[newMode]);
   };
 
   const getModeColor = () => {
     if (timerMode === 'Stopwatch') return 'text-blue-400 border-blue-400/30 bg-blue-400/10 hover:bg-blue-400/20';
+    if (timerMode === 'Timer') return 'text-purple-400 border-purple-400/30 bg-purple-400/10 hover:bg-purple-400/20';
     if (timerMode === 'Focus') return 'text-accent border-accent/30 bg-accent/10 hover:bg-accent/20';
     return 'text-warning border-warning/30 bg-warning/10 hover:bg-warning/20';
   };
 
-  const progress = timerDurations[timerMode] === 0 
+  const progress = timerMode === 'Stopwatch' 
     ? 100 
-    : ((timerDurations[timerMode] - timerTime) / timerDurations[timerMode]) * 100;
+    : timerDurations[timerMode] === 0 
+      ? 100 
+      : ((timerDurations[timerMode] - timerTime) / timerDurations[timerMode]) * 100;
 
   return (
     <div className="max-w-5xl mx-auto py-8">
@@ -128,6 +133,14 @@ export const TimerPage = () => {
             }`}
           >
             <TimerIcon className="w-4 h-4" /> Stopwatch
+          </button>
+          <button 
+            onClick={() => switchMode('Timer')}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              timerMode === 'Timer' ? 'bg-purple-500/20 text-purple-400' : 'text-text-muted hover:text-text-main'
+            }`}
+          >
+            <Hourglass className="w-4 h-4" /> Timer
           </button>
           <button 
             onClick={() => switchMode('Focus')}
@@ -181,7 +194,7 @@ export const TimerPage = () => {
           >
             {/* Progress Bar Background */}
             <div 
-              className={`absolute bottom-0 left-0 h-1.5 transition-all duration-1000 ease-linear ${timerMode === 'Stopwatch' ? 'bg-blue-500' : timerMode === 'Focus' ? 'bg-accent' : 'bg-warning'}`}
+              className={`absolute bottom-0 left-0 h-1.5 transition-all duration-1000 ease-linear ${timerMode === 'Stopwatch' ? 'bg-blue-500' : timerMode === 'Timer' ? 'bg-purple-500' : timerMode === 'Focus' ? 'bg-accent' : 'bg-warning'}`}
               style={{ width: `${progress}%` }}
             ></div>
 
@@ -189,13 +202,15 @@ export const TimerPage = () => {
               <h2 className="text-lg font-semibold text-text-main flex items-center gap-2">
                 {timerMode === 'Stopwatch' ? (
                   <><TimerIcon className="w-5 h-5 text-blue-400" /> Stopwatch</>
+                ) : timerMode === 'Timer' ? (
+                  <><Hourglass className="w-5 h-5 text-purple-400" /> Timer</>
                 ) : timerMode === 'Focus' ? (
                   <><Brain className="w-5 h-5 text-accent" /> Focus Session</>
                 ) : (
                   <><Coffee className="w-5 h-5 text-warning" /> Take a Break</>
                 )}
               </h2>
-              {(timerMode === 'Focus' || timerMode === 'Stopwatch') && (
+              {(timerMode === 'Focus' || timerMode === 'Stopwatch' || timerMode === 'Timer') && (
                 <input 
                   type="text" 
                   value={timerSessionName}
@@ -207,7 +222,7 @@ export const TimerPage = () => {
             </div>
 
             <div className="flex flex-col items-center justify-center py-8 relative z-10">
-              {isEditingTime ? (
+              {isEditingTime && timerMode !== 'Stopwatch' ? (
                 <form onSubmit={handleTimeSubmit} className="flex flex-col items-center mb-12">
                   <div className="flex items-baseline justify-center">
                     <input
@@ -226,13 +241,13 @@ export const TimerPage = () => {
               ) : (
                 <div className="flex flex-col items-center mb-12">
                   <div 
-                    className={`text-7xl md:text-9xl font-black font-mono tracking-tighter text-text-main tabular-nums ${!timerIsActive ? 'cursor-pointer hover:text-accent transition-colors' : ''}`}
-                    onClick={() => !timerIsActive && setIsEditingTime(true)}
-                    title={!timerIsActive ? "Click to edit time" : ""}
+                    className={`text-7xl md:text-9xl font-black font-mono tracking-tighter text-text-main tabular-nums ${!timerIsActive && timerMode !== 'Stopwatch' ? 'cursor-pointer hover:text-accent transition-colors' : ''}`}
+                    onClick={() => !timerIsActive && timerMode !== 'Stopwatch' && setIsEditingTime(true)}
+                    title={!timerIsActive && timerMode !== 'Stopwatch' ? "Click to edit time" : ""}
                   >
                     {formatTime(timerTime)}
                   </div>
-                  {!timerIsActive && (
+                  {!timerIsActive && timerMode !== 'Stopwatch' && (
                     <p className="text-sm text-text-muted mt-4 opacity-70">Click the time to set duration</p>
                   )}
                 </div>
@@ -256,7 +271,7 @@ export const TimerPage = () => {
                 )}
 
                 <AnimatePresence>
-                  {((timerMode === 'Stopwatch' && (timerDurations.Stopwatch === 0 ? timerTime > 0 : timerTime < timerDurations.Stopwatch)) || (timerMode !== 'Stopwatch' && timerTime < timerDurations[timerMode])) && !timerIsActive && (
+                  {((timerMode === 'Stopwatch' && timerTime > 0) || (timerMode !== 'Stopwatch' && timerTime < timerDurations[timerMode])) && !timerIsActive && (
                     <>
                       {timerMode !== 'Break' && (
                         <motion.button 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Play, Pause, Square, Coffee, Brain, Timer as TimerIcon } from 'lucide-react';
+import { Play, Pause, Square, Coffee, Brain, Timer as TimerIcon, Hourglass } from 'lucide-react';
 import { useAppStore, type TimerMode } from '../../../store';
 
 export function TimerWidget() {
@@ -22,7 +22,9 @@ export function TimerWidget() {
 
   // Keep local edit minutes in sync
   useEffect(() => {
-    setEditMinutes(Math.floor(timerDurations[timerMode] / 60).toString());
+    if (timerMode !== 'Stopwatch') {
+      setEditMinutes(Math.floor(timerDurations[timerMode] / 60).toString());
+    }
   }, [timerMode, timerDurations]);
 
   const handleTimeSubmit = (e?: React.FormEvent) => {
@@ -44,8 +46,8 @@ export function TimerWidget() {
 
   const resetTimer = () => {
     setTimerIsActive(false);
-    if (timerMode === 'Stopwatch' && timerTime > 0) {
-      const isCountdown = timerDurations.Stopwatch > 0;
+    if (timerTime > 0) {
+      const isCountdown = timerMode !== 'Stopwatch';
       const duration = isCountdown ? (timerDurations[timerMode] - timerTime) : timerTime;
       
       if (duration > 0) {
@@ -56,13 +58,13 @@ export function TimerWidget() {
         });
       }
     }
-    setTimerTime(timerDurations[timerMode]);
+    setTimerTime(timerMode === 'Stopwatch' ? 0 : timerDurations[timerMode]);
   };
 
   const switchMode = (newMode: TimerMode) => {
     setTimerMode(newMode);
     setTimerIsActive(false);
-    setTimerTime(timerDurations[newMode]);
+    setTimerTime(newMode === 'Stopwatch' ? 0 : timerDurations[newMode]);
   };
 
   const formatTime = (seconds: number) => {
@@ -71,9 +73,11 @@ export function TimerWidget() {
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  const progress = timerDurations[timerMode] === 0 
+  const progress = timerMode === 'Stopwatch'
     ? 100 
-    : ((timerDurations[timerMode] - timerTime) / timerDurations[timerMode]) * 100;
+    : timerDurations[timerMode] === 0 
+      ? 100 
+      : ((timerDurations[timerMode] - timerTime) / timerDurations[timerMode]) * 100;
 
   return (
     <div className="bg-bg-card rounded-lg border border-border-subtle overflow-hidden shadow-sm flex flex-col">
@@ -82,12 +86,14 @@ export function TimerWidget() {
         <h2 className="text-body-md font-medium text-text-main flex items-center gap-2">
           {timerMode === 'Stopwatch' ? (
             <TimerIcon className="w-4 h-4 text-blue-400" />
+          ) : timerMode === 'Timer' ? (
+            <Hourglass className="w-4 h-4 text-purple-400" />
           ) : timerMode === 'Focus' ? (
             <Brain className="w-4 h-4 text-accent" />
           ) : (
             <Coffee className="w-4 h-4 text-warning" />
           )}
-          {timerMode === 'Stopwatch' ? 'Stopwatch' : timerMode === 'Focus' ? 'Focus Session' : 'Take a Break'}
+          {timerMode === 'Stopwatch' ? 'Stopwatch' : timerMode === 'Timer' ? 'Timer' : timerMode === 'Focus' ? 'Focus Session' : 'Take a Break'}
         </h2>
         
         <div className="flex bg-bg-app rounded-md border border-border-subtle p-0.5">
@@ -98,6 +104,14 @@ export function TimerWidget() {
             }`}
           >
             Stopwatch
+          </button>
+          <button 
+            onClick={() => switchMode('Timer')}
+            className={`px-3 py-1 text-xs font-medium rounded-sm transition-colors ${
+              timerMode === 'Timer' ? 'bg-purple-500/20 text-purple-400' : 'text-text-muted hover:text-text-main'
+            }`}
+          >
+            Timer
           </button>
           <button 
             onClick={() => switchMode('Focus')}
@@ -120,7 +134,7 @@ export function TimerWidget() {
 
       {/* Timer Body */}
       <div className="p-6 flex flex-col items-center justify-center relative">
-        {isEditingTime ? (
+        {isEditingTime && timerMode !== 'Stopwatch' ? (
           <form onSubmit={handleTimeSubmit} className="flex flex-col items-center mb-2">
             <div className="flex items-baseline justify-center">
               <input
@@ -137,15 +151,15 @@ export function TimerWidget() {
           </form>
         ) : (
           <div 
-            className={`text-display-lg font-bold text-text-main font-mono tracking-wider mb-2 tabular-nums ${!timerIsActive ? 'cursor-pointer hover:text-accent transition-colors' : ''}`}
-            onClick={() => !timerIsActive && setIsEditingTime(true)}
-            title={!timerIsActive ? "Click to edit time" : ""}
+            className={`text-display-lg font-bold text-text-main font-mono tracking-wider mb-2 tabular-nums ${!timerIsActive && timerMode !== 'Stopwatch' ? 'cursor-pointer hover:text-accent transition-colors' : ''}`}
+            onClick={() => !timerIsActive && timerMode !== 'Stopwatch' && setIsEditingTime(true)}
+            title={!timerIsActive && timerMode !== 'Stopwatch' ? "Click to edit time" : ""}
           >
             {formatTime(timerTime)}
           </div>
         )}
         
-        {(timerMode === 'Focus' || timerMode === 'Stopwatch') && (
+        {(timerMode === 'Focus' || timerMode === 'Stopwatch' || timerMode === 'Timer') && (
           <input 
             type="text" 
             value={timerSessionName}
@@ -174,7 +188,7 @@ export function TimerWidget() {
           
           <button 
             onClick={resetTimer}
-            disabled={timerTime === timerDurations[timerMode]}
+            disabled={timerTime === (timerMode === 'Stopwatch' ? 0 : timerDurations[timerMode])}
             className="w-10 h-10 rounded-full flex items-center justify-center bg-bg-app border border-border-subtle text-text-muted hover:text-text-main transition-colors disabled:opacity-50 disabled:hover:text-text-muted disabled:cursor-not-allowed"
           >
             <Square className="w-4 h-4" />
@@ -185,7 +199,7 @@ export function TimerWidget() {
       {/* Progress Bar */}
       <div className="h-1 w-full bg-bg-app">
         <div 
-          className={`h-full transition-all duration-1000 ease-linear ${timerMode === 'Stopwatch' ? 'bg-blue-500' : timerMode === 'Focus' ? 'bg-accent' : 'bg-warning'}`}
+          className={`h-full transition-all duration-1000 ease-linear ${timerMode === 'Stopwatch' ? 'bg-blue-500' : timerMode === 'Timer' ? 'bg-purple-500' : timerMode === 'Focus' ? 'bg-accent' : 'bg-warning'}`}
           style={{ width: `${progress}%` }}
         ></div>
       </div>
