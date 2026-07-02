@@ -167,16 +167,24 @@ export const useAppStore = create<AppState>()((set) => ({
 
   // Settings
   updateSettings: async (updates) => {
+    let originalSettings: Settings | null = null;
+    set((state) => {
+      originalSettings = state.settings;
+      return { settings: state.settings ? { ...state.settings, ...updates } : updates as Settings };
+    });
+    
     try {
       const res = await fetch(`${API_URL}/settings`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(updates),
       });
+      if (!res.ok) throw new Error('Failed to update settings');
       const updatedSettings = await res.json();
       set({ settings: updatedSettings });
     } catch (e) {
       console.error(e);
+      if (originalSettings) set({ settings: originalSettings });
     }
   },
 
