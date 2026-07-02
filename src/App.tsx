@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { useAppStore } from './store';
 import { AppLayout } from './components/layout/AppLayout';
@@ -7,13 +7,26 @@ import { DayPlanner } from './features/day-planner/DayPlanner';
 import { TodoSystem } from './features/todo-system/TodoSystem';
 import { LinkVault } from './features/link-vault/LinkVault';
 import { Statistics } from './features/statistics/Statistics';
+import { DBZLoader } from './components/DBZLoader';
 
 function App() {
   const checkDailyReset = useAppStore((state) => state.checkDailyReset);
+  const fetchInitialData = useAppStore((state) => state.fetchInitialData);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     checkDailyReset();
-  }, [checkDailyReset]);
+    fetchInitialData().then(() => {
+      // Add a small delay for the DBZ effect to show (2s total approx)
+      setTimeout(() => {
+        setLoading(false);
+      }, 2000);
+    });
+  }, [checkDailyReset, fetchInitialData]);
+
+  if (loading) {
+    return <DBZLoader />;
+  }
 
   return (
     <BrowserRouter>

@@ -1,0 +1,64 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      String   @default("Todo") // Todo, In Progress, Done
+  priority    String   @default("Medium") // Low, Medium, High, Critical
+  category    String   @default("Daily")
+  difficulty  String?  // Easy, Medium, Hard
+  completed   Boolean  @default(false)
+  dueDate     DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  startTime   String
+  endTime     String
+  date        String
+  color       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Link {
+  id          String   @id @default(uuid())
+  url         String
+  title       String
+  description String?
+  category    String   @default("uncategorized")
+  icon        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model TimeSession {
+  id          String   @id @default(uuid())
+  name        String
+  duration    Int      // in seconds
+  date        String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Settings {
+  id          String   @id @default(uuid())
+  theme       String   @default("dark")
+  focusMode   Boolean  @default(false)
+  updatedAt   DateTime @updatedAt
+}
