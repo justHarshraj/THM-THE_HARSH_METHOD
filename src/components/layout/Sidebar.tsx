@@ -57,7 +57,7 @@ export function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-blue-500 flex items-center justify-center shadow-lg shadow-accent/20">
             <Command className="w-5 h-5 text-bg-app" />
           </div>
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-text-main to-text-muted">
             WORKBENCH
           </span>
         </h1>
