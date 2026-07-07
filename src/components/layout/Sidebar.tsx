@@ -12,6 +12,7 @@ import {
   Calendar,
   Hexagon
 } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 import { cn } from '../../lib/utils';
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
 
@@ -54,7 +55,7 @@ export function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
       )}>
       <div className="h-16 flex items-center px-6 border-b border-border-subtle">
         <h1 className="text-xl font-bold tracking-tight text-text-main flex items-center gap-3">
-          <Hexagon className="w-8 h-8 text-text-main" strokeWidth={1.5} />
+          <img src={logoImg} alt="Workbench Logo" className="w-10 h-10 object-contain scale-125 mix-blend-multiply grayscale contrast-150 dark:mix-blend-screen dark:invert" />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-text-main to-text-muted">
             WORKBENCH
           </span>

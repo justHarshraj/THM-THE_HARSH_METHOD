@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { API_URL } from '../../../store';
 import { LogIn, Mail, Lock, User as UserIcon, Hexagon } from 'lucide-react';
+import logoImg from '../../../assets/logo.png';
 import { DBZLoader } from '../../../components/DBZLoader';
 
 export const RegisterPage = () => {
@@ -82,7 +83,7 @@ export const RegisterPage = () => {
       >
         <div className="bg-bg-card p-8 rounded-2xl border border-border-subtle shadow-2xl backdrop-blur-sm min-h-[500px] flex flex-col justify-center relative overflow-hidden">
           <div className="flex justify-center mb-6">
-            <Hexagon className="w-14 h-14 text-text-main" strokeWidth={1} />
+            <img src={logoImg} alt="Workbench Logo" className="w-16 h-16 object-contain scale-[1.35] mix-blend-multiply grayscale contrast-150 dark:mix-blend-screen dark:invert" />
           </div>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold tracking-tight mb-2">Create Account</h1>
