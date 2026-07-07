@@ -1,17 +1,17 @@
 import { NavLink } from 'react-router-dom';
 
 import { 
-  LayoutDashboard, 
-  Calendar, 
+  Settings, 
   CheckSquare, 
+  LayoutDashboard, 
   Link as LinkIcon, 
   BarChart2, 
-  Settings,
   BookOpen,
-  Command,
   X,
-  Timer as TimerIcon
+  Timer as TimerIcon,
+  Calendar
 } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 import { cn } from '../../lib/utils';
 import { useAuthStore } from '../../features/auth/store/useAuthStore';
 
@@ -54,9 +54,7 @@ export function Sidebar({ isMobileOpen, setIsMobileOpen }: SidebarProps) {
       )}>
       <div className="h-16 flex items-center px-6 border-b border-border-subtle">
         <h1 className="text-xl font-bold tracking-tight text-text-main flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-blue-500 flex items-center justify-center shadow-lg shadow-accent/20">
-            <Command className="w-5 h-5 text-bg-app" />
-          </div>
+          <img src={logoImg} alt="Workbench Logo" className="w-10 h-10 object-contain drop-shadow-md" />
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-text-main to-text-muted">
             WORKBENCH
           </span>

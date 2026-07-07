@@ -2,8 +2,9 @@ import { Link, Navigate } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
 import { 
   Calendar, CheckSquare, Timer, Link as LinkIcon, BarChart2, 
-  ArrowRight, Command, Zap, Shield, Sparkles 
+  ArrowRight, Zap, Shield, Sparkles 
 } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 import { useAuthStore } from '../auth/store/useAuthStore';
 
 const features = [
@@ -83,9 +84,7 @@ export function LandingPage() {
       <nav className="fixed top-0 w-full z-50 bg-bg-app/80 backdrop-blur-xl border-b border-border-subtle/50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-blue-500 flex items-center justify-center shadow-lg shadow-accent/20">
-              <Command className="w-5 h-5 text-bg-app" />
-            </div>
+            <img src={logoImg} alt="Workbench Logo" className="w-8 h-8 object-contain drop-shadow-md" />
             <span className="text-lg font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-text-main to-text-muted">
               WORKBENCH
             </span>
@@ -250,9 +249,7 @@ export function LandingPage() {
       <footer className="border-t border-border-subtle py-8 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-accent to-blue-500 flex items-center justify-center">
-              <Command className="w-3.5 h-3.5 text-bg-app" />
-            </div>
+            <img src={logoImg} alt="Workbench Logo" className="w-6 h-6 object-contain drop-shadow-sm" />
             <span className="text-sm font-semibold text-text-muted">WORKBENCH</span>
           </div>
           <p className="text-xs text-text-muted">

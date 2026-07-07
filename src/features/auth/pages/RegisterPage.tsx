@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { API_URL } from '../../../store';
 import { LogIn, Mail, Lock, User as UserIcon } from 'lucide-react';
+import logoImg from '../../../assets/logo.png';
 import { DBZLoader } from '../../../components/DBZLoader';
 
 export const RegisterPage = () => {
@@ -81,6 +82,9 @@ export const RegisterPage = () => {
         className="w-full max-w-md"
       >
         <div className="bg-bg-card p-8 rounded-2xl border border-border-subtle shadow-2xl backdrop-blur-sm min-h-[500px] flex flex-col justify-center relative overflow-hidden">
+          <div className="flex justify-center mb-6">
+            <img src={logoImg} alt="Workbench Logo" className="w-12 h-12 object-contain drop-shadow-md" />
+          </div>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold tracking-tight mb-2">Create Account</h1>
             <p className="text-text-muted text-sm">Join WORKBENCH to start managing your life</p>

@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { useAppStore } from '../../store';
 import { Focus, Menu } from 'lucide-react';
+import logoImg from '../../assets/logo.png';
 
 export function AppLayout() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -66,7 +67,10 @@ export function AppLayout() {
       <main className="flex-1 flex flex-col h-screen overflow-hidden relative">
         {!settings?.focusMode && (
           <header className="md:hidden flex items-center justify-between p-4 border-b border-border-subtle bg-bg-app shrink-0 z-10">
-            <span className="font-bold tracking-tight text-text-main">WORKBENCH</span>
+            <div className="flex items-center gap-2">
+              <img src={logoImg} alt="Workbench Logo" className="w-6 h-6 object-contain" />
+              <span className="font-bold tracking-tight text-text-main">WORKBENCH</span>
+            </div>
             <button 
               onClick={() => setIsMobileMenuOpen(true)} 
               className="p-2 text-text-muted hover:text-text-main bg-bg-card rounded-md border border-border-subtle"

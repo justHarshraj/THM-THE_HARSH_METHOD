@@ -4,6 +4,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { API_URL } from '../../../store';
+import logoImg from '../../../assets/logo.png';
 import { LogIn, Mail, Lock } from 'lucide-react';
 import { DBZLoader } from '../../../components/DBZLoader';
 
@@ -80,6 +81,9 @@ export const LoginPage = () => {
         className="w-full max-w-md"
       >
         <div className="bg-bg-card p-8 rounded-2xl border border-border-subtle shadow-2xl backdrop-blur-sm min-h-[460px] flex flex-col justify-center relative overflow-hidden">
+          <div className="flex justify-center mb-6">
+            <img src={logoImg} alt="Workbench Logo" className="w-12 h-12 object-contain drop-shadow-md" />
+          </div>
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold tracking-tight mb-2">Welcome Back</h1>
             <p className="text-text-muted text-sm">Sign in to your WORKBENCH workspace</p>
