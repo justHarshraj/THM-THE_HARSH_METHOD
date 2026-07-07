@@ -4,7 +4,7 @@ import { GoogleLogin } from '@react-oauth/google';
 import { motion } from 'framer-motion';
 import { useAuthStore } from '../store/useAuthStore';
 import { API_URL } from '../../../store';
-import { LogIn, Mail, Lock, User as UserIcon, Hexagon } from 'lucide-react';
+import { LogIn, Mail, Lock, User as UserIcon } from 'lucide-react';
 import logoImg from '../../../assets/logo.png';
 import { DBZLoader } from '../../../components/DBZLoader';
 

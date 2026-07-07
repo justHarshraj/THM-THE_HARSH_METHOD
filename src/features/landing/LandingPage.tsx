@@ -2,7 +2,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { motion, type Variants } from 'framer-motion';
 import { 
   Calendar, CheckSquare, Timer, Link as LinkIcon, BarChart2, 
-  ArrowRight, Zap, Shield, Sparkles, Hexagon 
+  ArrowRight, Zap, Shield, Sparkles 
 } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 import { useAuthStore } from '../auth/store/useAuthStore';

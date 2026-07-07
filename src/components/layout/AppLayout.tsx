@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { useAppStore } from '../../store';
-import { Focus, Menu, Hexagon } from 'lucide-react';
+import { Focus, Menu } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 
 export function AppLayout() {

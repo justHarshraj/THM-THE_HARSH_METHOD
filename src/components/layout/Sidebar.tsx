@@ -9,8 +9,7 @@ import {
   BookOpen,
   X,
   Timer as TimerIcon,
-  Calendar,
-  Hexagon
+  Calendar
 } from 'lucide-react';
 import logoImg from '../../assets/logo.png';
 import { cn } from '../../lib/utils';
