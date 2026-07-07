@@ -7,6 +7,7 @@ import { CheckCircle2, Circle, Clock, Plus, Target } from 'lucide-react';
 import { TodoModal } from '../todo-system/components/TodoModal';
 import { HyperlinkWidget } from './components/HyperlinkWidget';
 import { TimerWidget } from './components/TimerWidget';
+import { QuoteWidget } from './components/QuoteWidget';
 
 export function Dashboard() {
   const [greeting, setGreeting] = useState('');
@@ -171,6 +172,8 @@ export function Dashboard() {
               </button>
             </div>
           </div>
+          
+          <QuoteWidget />
           
           <TimerWidget />
           
