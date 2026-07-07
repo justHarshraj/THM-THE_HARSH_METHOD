@@ -173,118 +173,104 @@ export const TimerPage = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="bg-bg-card border border-border-subtle rounded-3xl p-8 shadow-xl relative overflow-hidden flex-1 flex flex-col min-h-[500px] justify-between"
+            className="bg-bg-card border border-border-subtle rounded-3xl p-8 shadow-xl relative overflow-hidden flex-1 flex flex-col min-h-[500px] items-center justify-center"
           >
-            {/* Progress Bar Background */}
-            <div 
-              className={`absolute bottom-0 left-0 h-1.5 transition-all duration-1000 ease-linear ${timerMode === 'Stopwatch' ? 'bg-blue-500' : timerMode === 'Timer' ? 'bg-purple-500' : timerMode === 'Focus' ? 'bg-accent' : 'bg-warning'}`}
-              style={{ width: `${progress}%` }}
-            ></div>
+            {/* Top Label */}
+            <h2 className="text-sm font-bold tracking-widest text-text-muted uppercase mb-12 relative z-10">
+              {timerMode === 'Stopwatch' ? 'Stopwatch' : timerMode === 'Timer' ? 'Timer' : timerMode === 'Focus' ? 'Work Session' : 'Break Time'}
+            </h2>
 
-            <div className="flex items-center justify-between mb-8 relative z-10">
-              <h2 className="text-lg font-semibold text-text-main flex items-center gap-2">
-                {timerMode === 'Stopwatch' ? (
-                  <><TimerIcon className="w-5 h-5 text-blue-400" /> Stopwatch</>
-                ) : timerMode === 'Timer' ? (
-                  <><Hourglass className="w-5 h-5 text-purple-400" /> Timer</>
-                ) : timerMode === 'Focus' ? (
-                  <><Brain className="w-5 h-5 text-accent" /> Focus Session</>
-                ) : (
-                  <><Coffee className="w-5 h-5 text-warning" /> Take a Break</>
-                )}
-              </h2>
-              {(timerMode === 'Focus' || timerMode === 'Stopwatch' || timerMode === 'Timer') && (
+            {/* Circular Timer */}
+            <div className="w-80 h-80 rounded-full border border-border-subtle flex flex-col items-center justify-center relative mb-8 z-10">
+              {isEditingTime && timerMode !== 'Stopwatch' ? (
+                <form onSubmit={handleTimeSubmit} className="flex flex-col items-center">
+                  <input
+                    autoFocus
+                    type="number"
+                    min="0"
+                    max="1440"
+                    value={editMinutes}
+                    onChange={(e) => setEditMinutes(e.target.value)}
+                    onBlur={() => handleTimeSubmit()}
+                    className="text-7xl font-black font-mono tracking-tighter text-text-main bg-transparent text-center focus:outline-none w-32 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none selection:bg-accent/30"
+                  />
+                  <span className="text-sm font-bold text-text-muted mt-2">min</span>
+                </form>
+              ) : (
+                <div 
+                  className={`text-7xl font-black font-mono tracking-tighter text-text-main tabular-nums ${!timerIsActive && timerMode !== 'Stopwatch' ? 'cursor-pointer hover:opacity-70 transition-opacity' : ''}`}
+                  onClick={() => !timerIsActive && timerMode !== 'Stopwatch' && setIsEditingTime(true)}
+                  title={!timerIsActive && timerMode !== 'Stopwatch' ? "Click to edit time" : ""}
+                >
+                  {formatTime(timerTime)}
+                </div>
+              )}
+            </div>
+
+            {/* Session Name / Info */}
+            <div className="mb-10 text-center relative z-10">
+              {(timerMode === 'Focus' || timerMode === 'Stopwatch' || timerMode === 'Timer') ? (
                 <input 
                   type="text" 
                   value={timerSessionName}
                   onChange={(e) => setTimerSessionName(e.target.value)}
-                  placeholder="What are you working on?"
-                  className="bg-bg-app border border-border-subtle rounded-lg px-3 py-1.5 text-sm text-text-main focus:outline-none focus:border-accent transition-colors w-48"
+                  placeholder="Session 1"
+                  className="bg-transparent text-center text-sm font-medium text-text-muted focus:outline-none focus:text-text-main transition-colors w-64 placeholder-text-muted/50"
                 />
+              ) : (
+                <p className="text-sm font-medium text-text-muted">Break</p>
               )}
             </div>
 
-            <div className="flex flex-col items-center justify-center py-8 relative z-10 flex-1">
-              {isEditingTime && timerMode !== 'Stopwatch' ? (
-                <form onSubmit={handleTimeSubmit} className="flex flex-col items-center mb-12">
-                  <div className="flex items-baseline justify-center">
-                    <input
-                      autoFocus
-                      type="number"
-                      min="0"
-                      max="1440"
-                      value={editMinutes}
-                      onChange={(e) => setEditMinutes(e.target.value)}
-                      onBlur={() => handleTimeSubmit()}
-                      className="text-7xl md:text-9xl font-black font-mono tracking-tighter text-text-main bg-transparent text-center focus:outline-none w-32 md:w-48 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none selection:bg-accent/30"
-                    />
-                    <span className="text-2xl font-bold text-text-muted ml-2">min</span>
-                  </div>
-                  <p className="text-sm text-accent mt-4 animate-pulse">Press Enter to save</p>
-                </form>
+            {/* Controls */}
+            <div className="flex items-center gap-4 mb-12 relative z-10">
+              {!timerIsActive ? (
+                <button 
+                  onClick={handleStart}
+                  className="px-8 py-2.5 rounded-full bg-text-main text-bg-main font-semibold text-sm hover:opacity-90 transition-opacity"
+                >
+                  Start
+                </button>
               ) : (
-                <div className="flex flex-col items-center mb-12">
-                  <div 
-                    className={`text-7xl md:text-9xl font-black font-mono tracking-tighter text-text-main tabular-nums ${!timerIsActive && timerMode !== 'Stopwatch' ? 'cursor-pointer hover:text-accent transition-colors' : ''}`}
-                    onClick={() => !timerIsActive && timerMode !== 'Stopwatch' && setIsEditingTime(true)}
-                    title={!timerIsActive && timerMode !== 'Stopwatch' ? "Click to edit time" : ""}
-                  >
-                    {formatTime(timerTime)}
-                  </div>
-                  {!timerIsActive && timerMode !== 'Stopwatch' && (
-                    <p className="text-sm text-text-muted mt-4 opacity-70">Click the time to set duration</p>
-                  )}
-                </div>
+                <button 
+                  onClick={handlePause}
+                  className="px-8 py-2.5 rounded-full border border-border-subtle bg-transparent text-text-main font-semibold text-sm hover:bg-border-subtle/30 transition-colors"
+                >
+                  Pause
+                </button>
               )}
 
-              <div className="flex items-center gap-4">
-                {!timerIsActive ? (
+              {((timerMode === 'Stopwatch' && timerTime > 0) || (timerMode !== 'Stopwatch' && timerTime < timerDurations[timerMode])) && !timerIsActive && (
+                <>
                   <button 
-                    onClick={handleStart}
-                    className={`w-16 h-16 rounded-full flex items-center justify-center transition-all shadow-lg border ${getModeColor()} hover:scale-105 active:scale-95`}
+                    onClick={handleReset}
+                    className="px-6 py-2.5 rounded-full bg-transparent text-text-muted font-medium text-sm hover:text-text-main transition-colors"
                   >
-                    <Play className="w-8 h-8 ml-1 fill-current" />
+                    Reset
                   </button>
-                ) : (
-                  <button 
-                    onClick={handlePause}
-                    className="w-16 h-16 rounded-full bg-border-subtle border border-text-muted hover:opacity-90 text-text-main flex items-center justify-center transition-all shadow-lg hover:scale-105 active:scale-95"
-                  >
-                    <Pause className="w-8 h-8 fill-current" />
-                  </button>
-                )}
-
-                <AnimatePresence>
-                  {((timerMode === 'Stopwatch' && timerTime > 0) || (timerMode !== 'Stopwatch' && timerTime < timerDurations[timerMode])) && !timerIsActive && (
-                    <>
-                      {timerMode !== 'Break' && (
-                        <motion.button 
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          onClick={handleSave}
-                          disabled={isSaving}
-                          className="w-16 h-16 rounded-full bg-success hover:opacity-90 text-white flex items-center justify-center transition-all shadow-lg shadow-success/20 hover:scale-105 active:scale-95 disabled:opacity-50"
-                          title="Save Session"
-                        >
-                          <Save className="w-7 h-7" />
-                        </motion.button>
-                      )}
-                      
-                      <motion.button 
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.8 }}
-                        onClick={handleReset}
-                        className="w-16 h-16 rounded-full bg-border-subtle border border-border-subtle/50 hover:bg-border-subtle/80 text-text-main flex items-center justify-center transition-all hover:scale-105 active:scale-95"
-                        title="Reset"
-                      >
-                        <Square className="w-6 h-6" />
-                      </motion.button>
-                    </>
+                  {timerMode !== 'Break' && (
+                    <button 
+                      onClick={handleSave}
+                      disabled={isSaving}
+                      className="px-6 py-2.5 rounded-full bg-transparent text-accent font-medium text-sm hover:text-accent/80 transition-colors disabled:opacity-50"
+                    >
+                      Save
+                    </button>
                   )}
-                </AnimatePresence>
-              </div>
+                </>
+              )}
+            </div>
+
+            {/* Settings Summary at bottom */}
+            <div className="flex items-center gap-8 text-sm font-medium text-text-main relative z-10">
+              <span className="flex gap-2">
+                <span className="text-text-muted">Work:</span>
+                {Math.floor(timerDurations['Focus'] / 60)}
+              </span>
+              <span className="flex gap-2">
+                <span className="text-text-muted">Break:</span>
+                {Math.floor(timerDurations['Break'] / 60)}
+              </span>
             </div>
           </motion.section>
 
