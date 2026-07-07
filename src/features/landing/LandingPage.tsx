@@ -38,6 +38,11 @@ export function LandingPage() {
     });
     gsap.ticker.lagSmoothing(0);
 
+    // Refresh ScrollTrigger to fix height calculations on mobile
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 100);
+
     return () => {
       gsap.ticker.remove((time) => lenis.raf(time * 1000));
       lenis.destroy();

@@ -85,12 +85,12 @@ export function HeroSection() {
       // Phase 1: Text layer dissolves and gets pulled into the gate
       tl.fromTo(textLayer,
         { opacity: 1, scale: 1, filter: 'blur(0px)' },
-        { opacity: 0, scale: 1.5, filter: 'blur(10px)', duration: 12, ease: 'power2.in', immediateRender: false },
+        { opacity: 0, scale: 1.5, filter: 'blur(10px)', duration: 12, ease: 'power2.in' },
         0 // Start dissolving text immediately
       );
       tl.fromTo(scrollInd,
         { opacity: 1 },
-        { opacity: 0, duration: 4, ease: 'power1.in', immediateRender: false },
+        { opacity: 0, duration: 4, ease: 'power1.in' },
         0
       );
 
@@ -98,12 +98,12 @@ export function HeroSection() {
       // Using power3.in makes it feel like we are accelerating INTO the gate (constant forward motion)
       tl.fromTo(toriiWrapper,
         { scale: 1 },
-        { scale: 40, duration: 30, ease: 'power3.in', immediateRender: false },
+        { scale: 40, duration: 30, ease: 'power3.in' },
         2
       );
       tl.fromTo(stripeWrapper,
         { scaleX: 1, scaleY: 1, opacity: 1 },
-        { scaleX: 12, scaleY: 2, opacity: 0, duration: 30, ease: 'power3.in', immediateRender: false },
+        { scaleX: 12, scaleY: 2, opacity: 0, duration: 30, ease: 'power3.in' },
         2
       );
 
@@ -112,7 +112,7 @@ export function HeroSection() {
       if (globalPagodaBg) {
         tl.fromTo(globalPagodaBg,
           { opacity: 0 },
-          { opacity: 0.25, duration: 25, ease: 'power2.inOut', immediateRender: false },
+          { opacity: 0.25, duration: 25, ease: 'power2.inOut' },
           12 // Starts appearing through the gate
         );
       }
@@ -120,14 +120,14 @@ export function HeroSection() {
       // Phase 4: Gate passes the camera completely
       tl.fromTo(toriiWrapper,
         { opacity: 1, filter: 'blur(0px)' },
-        { opacity: 0, filter: 'blur(30px)', duration: 8, ease: 'power2.in', immediateRender: false },
+        { opacity: 0, filter: 'blur(30px)', duration: 8, ease: 'power2.in' },
         26
       );
 
       // Phase 5: Seamlessly fade in the divider right after the gate passes
       tl.fromTo(divider, 
         { opacity: 0, scaleY: 0 }, 
-        { opacity: 1, scaleY: 1, duration: 15, ease: 'power2.out', immediateRender: false }, 
+        { opacity: 1, scaleY: 1, duration: 15, ease: 'power2.out' }, 
         30
       );
     }, containerRef);
