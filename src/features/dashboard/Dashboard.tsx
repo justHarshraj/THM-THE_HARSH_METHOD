@@ -38,10 +38,13 @@ export function Dashboard() {
   ];
   if (totalTasks === 0) progressData[1].value = 1; // Default ring
 
-  // Active Task Logic
-  const activeTask = todos.find(t => t.status === 'In Progress') || 
-                     todos.find(t => t.priority === 'Critical' && t.status !== 'Done') ||
-                     todos.find(t => t.status !== 'Done');
+  // Active Tasks Logic
+  const activeTasks = todos.filter(t => t.status !== 'Done')
+                           .sort((a, b) => {
+                             if (a.status === 'In Progress' && b.status !== 'In Progress') return -1;
+                             if (b.status === 'In Progress' && a.status !== 'In Progress') return 1;
+                             return 0;
+                           });
 
   const toggleComplete = (id: string, currentStatus: string) => {
     updateTodo(id, { status: currentStatus === 'Done' ? 'Todo' : 'Done', completed: currentStatus !== 'Done' });
@@ -104,33 +107,53 @@ export function Dashboard() {
             </div>
           </div>
 
-          <div className="bg-bg-card rounded-lg border border-border-subtle p-5 flex-1 shadow-sm flex flex-col">
+          <div className="bg-bg-card rounded-lg border border-border-subtle p-5 flex-1 shadow-sm flex flex-col overflow-hidden">
             <h2 className="text-body-md font-semibold text-text-main mb-3 flex items-center gap-2">
-              <Target className="w-4 h-4 text-warning" /> Current Active Task
+              <Target className="w-4 h-4 text-warning" /> Active Tasks
             </h2>
-            {activeTask ? (
-              <div className="flex items-start gap-4 p-4 rounded-md bg-bg-app border border-border-subtle">
-                <button 
-                  onClick={() => toggleComplete(activeTask.id, activeTask.status)}
-                  className="mt-1 flex-shrink-0 text-text-muted hover:text-accent transition-colors"
-                >
-                  {activeTask.status === 'Done' ? <CheckCircle2 className="w-5 h-5 text-success" /> : <Circle className="w-5 h-5" />}
-                </button>
-                <div className="flex-1">
-                  <h3 className="text-body-md font-medium text-text-main">{activeTask.title}</h3>
-                  {activeTask.description && <p className="text-body-sm text-text-muted mt-1">{activeTask.description}</p>}
-                  <div className="flex gap-2 mt-3 text-xs">
-                    <span className="px-2 py-0.5 rounded border border-border-subtle bg-bg-card text-text-muted">{activeTask.category}</span>
-                    <span className="px-2 py-0.5 rounded border border-border-subtle bg-bg-card text-text-muted">{activeTask.priority}</span>
+            <div className="flex-1 overflow-y-auto pr-2 space-y-3">
+              {activeTasks.length > 0 ? (
+                activeTasks.map(activeTask => (
+                  <div key={activeTask.id} className="flex items-start gap-4 p-4 rounded-md bg-bg-app border border-border-subtle">
+                    <button 
+                      onClick={() => toggleComplete(activeTask.id, activeTask.status)}
+                      className="mt-1 flex-shrink-0 text-text-muted hover:text-accent transition-colors"
+                    >
+                      {activeTask.status === 'Done' ? <CheckCircle2 className="w-5 h-5 text-success" /> : <Circle className="w-5 h-5" />}
+                    </button>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="text-body-md font-medium truncate text-text-main">{activeTask.title}</h3>
+                        <span className={`text-[10px] uppercase font-bold px-1.5 py-0.5 rounded border border-border-subtle ${
+                          activeTask.priority === 'Critical' ? 'text-error' :
+                          activeTask.priority === 'High' ? 'text-warning' :
+                          activeTask.priority === 'Medium' ? 'text-accent' :
+                          'text-text-muted'
+                        }`}>
+                          {activeTask.priority}
+                        </span>
+                      </div>
+                      {activeTask.description && <p className="text-body-sm text-text-muted truncate mt-1">{activeTask.description}</p>}
+                      <div className="flex items-center gap-3 mt-3 text-caption text-text-muted">
+                        <span className="bg-bg-card px-2 py-0.5 rounded border border-border-subtle">{activeTask.category}</span>
+                        {activeTask.dueDate && (
+                          <div className="flex items-center gap-1">
+                            <Clock className="w-3 h-3" />
+                            {activeTask.dueDate}
+                          </div>
+                        )}
+                        <span>Status: {activeTask.status}</span>
+                      </div>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center text-text-muted border border-dashed border-border-subtle rounded-md p-6 h-full min-h-[120px]">
+                  <CheckCircle2 className="w-8 h-8 mb-2 opacity-30" />
+                  <p>No active tasks right now. You're all caught up!</p>
                 </div>
-              </div>
-            ) : (
-              <div className="flex-1 flex flex-col items-center justify-center text-text-muted border border-dashed border-border-subtle rounded-md p-6">
-                <CheckCircle2 className="w-8 h-8 mb-2 opacity-30" />
-                <p>No active tasks right now. You're all caught up!</p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
         
