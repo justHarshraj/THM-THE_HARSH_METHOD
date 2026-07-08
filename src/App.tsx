@@ -7,6 +7,7 @@ import { DayPlanner } from './features/day-planner/DayPlanner';
 import { TodoSystem } from './features/todo-system/TodoSystem';
 import { LinkVault } from './features/link-vault/LinkVault';
 import { TimerPage } from './features/timer/TimerPage';
+import { NotesLayout } from './features/notes/NotesLayout';
 import { Statistics } from './features/statistics/Statistics';
 import { Settings } from './features/settings/Settings';
 import { DBZLoader } from './components/DBZLoader';
@@ -63,7 +64,7 @@ function App() {
             <Route path="todos" element={<TodoSystem />} />
             <Route path="links" element={<LinkVault />} />
             <Route path="timer" element={<TimerPage />} />
-            <Route path="notes" element={<div className="p-4">Notes (Coming Soon)</div>} />
+            <Route path="notes/*" element={<NotesLayout />} />
             <Route path="statistics" element={<Statistics />} />
             <Route path="settings" element={<Settings />} />
           </Route>

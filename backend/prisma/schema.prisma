@@ -25,6 +25,7 @@ model User {
   links        Link[]
   timeSessions TimeSession[]
   settings     Settings?
+  pages        Page[]
 }
 
 model Task {
@@ -92,5 +93,21 @@ model Settings {
   updatedAt   DateTime @updatedAt
 
   userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Page {
+  id          String   @id @default(uuid())
+  title       String   @default("Untitled")
+  content     String?  // JSON stringified BlockNote content
+  icon        String?
+  coverImage  String?
+  parentId    String?
+  parent      Page?    @relation("PageHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children    Page[]   @relation("PageHierarchy")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

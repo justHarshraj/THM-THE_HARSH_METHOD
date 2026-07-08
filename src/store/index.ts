@@ -65,6 +65,17 @@ export interface Settings {
   focusMode: boolean;
 }
 
+export interface Page {
+  id: string;
+  title: string;
+  content?: string | null;
+  icon?: string | null;
+  coverImage?: string | null;
+  parentId?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export type TimerMode = 'Stopwatch' | 'Timer' | 'Focus' | 'Break';
 
 export interface AppState {
@@ -73,6 +84,7 @@ export interface AppState {
   links: LinkItem[];
   timeSessions: TimeSession[];
   settings: Settings | null;
+  pages: Page[];
   lastLoginDate: string | null;
 
   // Global Timer State
@@ -115,6 +127,11 @@ export interface AppState {
 
   // Time Sessions
   addTimeSession: (session: Partial<TimeSession>) => Promise<void>;
+
+  // Pages
+  addPage: (page: Partial<Page>) => Promise<Page | undefined>;
+  updatePage: (id: string, updates: Partial<Page>) => Promise<void>;
+  deletePage: (id: string) => Promise<void>;
 }
 
 export const useAppStore = create<AppState>()((set) => ({
@@ -123,6 +140,7 @@ export const useAppStore = create<AppState>()((set) => ({
   links: [],
   timeSessions: [],
   settings: null,
+  pages: [],
   lastLoginDate: null,
 
   // Global Timer Initial State
@@ -160,7 +178,8 @@ export const useAppStore = create<AppState>()((set) => ({
         events: data.events, 
         links: data.links, 
         timeSessions: data.timeSessions, 
-        settings: data.settings 
+        settings: data.settings,
+        pages: data.pages || []
       });
     } catch (e) {
       console.error('Failed to fetch initial data', e);
@@ -389,6 +408,62 @@ export const useAppStore = create<AppState>()((set) => ({
     } catch (e) {
       console.error(e);
       set((state) => ({ timeSessions: state.timeSessions.filter(s => s.id !== tempId) }));
+    }
+  },
+
+  // Pages
+  addPage: async (page) => {
+    const tempId = page.id || crypto.randomUUID();
+    const tempPage = { ...page, id: tempId, title: page.title || 'Untitled', createdAt: new Date().toISOString() } as Page;
+    set((state) => ({ pages: [tempPage, ...state.pages] }));
+    try {
+      const res = await apiFetch(`${API_URL}/pages`, {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(page),
+      });
+      if (!res.ok) throw new Error('Failed to create page');
+      const newPage = await res.json();
+      set((state) => ({ pages: state.pages.map(p => p.id === tempId ? newPage : p) }));
+      return newPage;
+    } catch (e) {
+      console.error(e);
+      set((state) => ({ pages: state.pages.filter(p => p.id !== tempId) }));
+    }
+  },
+  updatePage: async (id, updates) => {
+    let originalPage: Page | undefined;
+    set((state) => {
+      originalPage = state.pages.find(p => p.id === id);
+      return { pages: state.pages.map(p => p.id === id ? { ...p, ...updates } as Page : p) };
+    });
+    try {
+      const res = await apiFetch(`${API_URL}/pages/${id}`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(updates),
+      });
+      if (!res.ok) throw new Error('Failed to update page');
+    } catch (e) {
+      console.error(e);
+      if (originalPage) set((state) => ({ pages: state.pages.map(p => p.id === id ? originalPage! : p) }));
+    }
+  },
+  deletePage: async (id) => {
+    let originalPage: Page | undefined;
+    set((state) => {
+      originalPage = state.pages.find(p => p.id === id);
+      return { pages: state.pages.filter(p => p.id !== id) };
+    });
+    try {
+      const res = await apiFetch(`${API_URL}/pages/${id}`, { 
+        method: 'DELETE',
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) throw new Error('Failed to delete page');
+    } catch (e) {
+      console.error(e);
+      if (originalPage) set((state) => ({ pages: [...state.pages, originalPage!] }));
     }
   }
 }));

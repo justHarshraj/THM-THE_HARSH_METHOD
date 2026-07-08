@@ -30,12 +30,17 @@ app.use('/api', authMiddleware);
 app.get('/api/initial-data', async (req: AuthRequest, res) => {
   try {
     const userId = req.user!.id;
-    const [tasks, events, links, timeSessions, existingSettings] = await Promise.all([
+    const [tasks, events, links, timeSessions, existingSettings, pages] = await Promise.all([
       prisma.task.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
       prisma.event.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
       prisma.link.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
       prisma.timeSession.findMany({ where: { userId }, orderBy: { createdAt: 'desc' } }),
-      prisma.settings.findUnique({ where: { userId } })
+      prisma.settings.findUnique({ where: { userId } }),
+      prisma.page.findMany({ 
+        where: { userId }, 
+        orderBy: { createdAt: 'desc' },
+        select: { id: true, title: true, icon: true, coverImage: true, parentId: true, createdAt: true, updatedAt: true, userId: true } 
+      })
     ]);
 
     let settings = existingSettings;
@@ -43,7 +48,7 @@ app.get('/api/initial-data', async (req: AuthRequest, res) => {
       settings = await prisma.settings.create({ data: { userId } });
     }
 
-    res.json({ tasks, events, links, timeSessions, settings });
+    res.json({ tasks, events, links, timeSessions, settings, pages });
   } catch (error) {
     console.error('Fetch initial data error:', error);
     res.status(500).json({ error: 'Failed to fetch initial data' });
@@ -394,6 +399,97 @@ app.put('/api/settings', async (req: AuthRequest, res) => {
 
     console.error('Update settings error:', error);
     res.status(500).json({ error: 'Failed to update settings' });
+  }
+});
+
+// --- Pages API ---
+
+app.get('/api/pages', async (req: AuthRequest, res) => {
+  try {
+    const pages = await prisma.page.findMany({
+      where: { userId: req.user!.id },
+      orderBy: { createdAt: 'desc' },
+      select: { id: true, title: true, icon: true, coverImage: true, parentId: true, createdAt: true, updatedAt: true, userId: true }
+    });
+    res.json(pages);
+  } catch (error) {
+    console.error('Fetch pages error:', error);
+    res.status(500).json({ error: 'Failed to fetch pages' });
+  }
+});
+
+app.get('/api/pages/:id', async (req: AuthRequest, res) => {
+  try {
+    const id = req.params.id as string;
+    const page = await prisma.page.findUnique({
+      where: { id, userId: req.user!.id }
+    });
+    if (!page) {
+      res.status(404).json({ error: 'Page not found' });
+      return;
+    }
+    res.json(page);
+  } catch (error) {
+    console.error('Fetch page error:', error);
+    res.status(500).json({ error: 'Failed to fetch page' });
+  }
+});
+
+app.post('/api/pages', async (req: AuthRequest, res) => {
+  try {
+    const { title, parentId, icon, coverImage } = req.body;
+    
+    const newPage = await prisma.page.create({
+      data: { 
+        title: title || 'Untitled', 
+        parentId, 
+        icon, 
+        coverImage, 
+        userId: req.user!.id 
+      }
+    });
+    res.status(201).json(newPage);
+  } catch (error) {
+    console.error('Create page error:', error);
+    res.status(500).json({ error: 'Failed to create page' });
+  }
+});
+
+app.put('/api/pages/:id', async (req: AuthRequest, res) => {
+  try {
+    const id = req.params.id as string;
+    
+    const { title, content, icon, coverImage, parentId } = req.body;
+    const updateData = { title, content, icon, coverImage, parentId };
+    Object.keys(updateData).forEach(key => (updateData as any)[key] === undefined && delete (updateData as any)[key]);
+
+    const updatedPage = await prisma.page.update({
+      where: { id, userId: req.user!.id },
+      data: updateData
+    });
+    res.json(updatedPage);
+  } catch (error) {
+    if (error && (error as any).code === 'P2025') {
+      res.status(404).json({ error: 'Page not found' });
+      return;
+    }
+    console.error('Update page error:', error);
+    res.status(500).json({ error: 'Failed to update page' });
+  }
+});
+
+app.delete('/api/pages/:id', async (req: AuthRequest, res) => {
+  try {
+    const id = req.params.id as string;
+    await prisma.page.delete({ where: { id, userId: req.user!.id } });
+    res.status(204).send();
+  } catch (error) {
+    if (error && (error as any).code === 'P2025') {
+      res.status(404).json({ error: 'Page not found' });
+      return;
+    }
+    console.error('Delete page error:', error);
+    res.status(500).json({ error: 'Failed to delete page' });
   }
 });
 
