@@ -77,6 +77,7 @@ export interface Page {
   title?: string;
   icon?: string;
   coverImage?: string;
+  previewText?: string;
 }
 
 export type TimerMode = 'Stopwatch' | 'Timer' | 'Focus' | 'Break';
@@ -457,7 +458,8 @@ export const useAppStore = create<AppState>()((set) => ({
         ...newPageRaw,
         title: newPageRaw.content?.title || '',
         icon: newPageRaw.content?.icon || '',
-        coverImage: newPageRaw.content?.coverImage || ''
+        coverImage: newPageRaw.content?.coverImage || '',
+        previewText: newPageRaw.content?.previewText || ''
       };
       set((state) => ({ pages: state.pages.map(p => p.id === tempId ? newPage : p) }));
       return newPage;
@@ -474,7 +476,8 @@ export const useAppStore = create<AppState>()((set) => ({
         ...originalPage?.content,
         ...(updates.title !== undefined ? { title: updates.title } : {}),
         ...(updates.icon !== undefined ? { icon: updates.icon } : {}),
-        ...(updates.coverImage !== undefined ? { coverImage: updates.coverImage } : {})
+        ...(updates.coverImage !== undefined ? { coverImage: updates.coverImage } : {}),
+        ...(updates.previewText !== undefined ? { previewText: updates.previewText } : {})
       };
       
       return { 

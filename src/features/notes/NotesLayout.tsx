@@ -116,8 +116,8 @@ export const NotesLayout = () => {
                   ) : (
                     <div className="p-4 w-full h-full text-xs text-text-muted break-words overflow-hidden opacity-70">
                       {/* Fake preview of content if it was flat text. Since it's JSON from blocknote, just render a snippet if possible */}
-                      <p className="line-clamp-6 text-left">
-                        {page.content?.title || "Empty Note Content"}
+                      <p className="line-clamp-6 text-left text-[11px] leading-snug font-medium text-text-muted/90 p-1">
+                        {page.previewText || page.content?.previewText || "Empty Note Content"}
                       </p>
                     </div>
                   )}

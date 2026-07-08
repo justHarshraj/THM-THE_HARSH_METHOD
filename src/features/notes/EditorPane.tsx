@@ -199,6 +199,21 @@ export const EditorPane = ({ pageId, onClose }: EditorPaneProps) => {
           },
           body: JSON.stringify({ blocks: document })
         });
+        
+        // Extract plain text for preview
+        let preview = '';
+        for (const block of document) {
+          if (block.content && Array.isArray(block.content)) {
+            for (const inline of block.content) {
+              if (inline.type === 'text') {
+                preview += inline.text + ' ';
+              }
+            }
+          }
+          if (preview.length > 200) break;
+        }
+        await updatePage(pageId, { previewText: preview.trim() });
+        
       } catch (e) {
         console.error("Sync failed", e);
       }
