@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAppStore } from '../../store';
-import { useCreateBlockNote, SideMenuController, SideMenu, DragHandleButton } from '@blocknote/react';
+import { useCreateBlockNote, SideMenuController, SideMenu, DragHandleButton, useComponentsContext } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import '@blocknote/core/fonts/inter.css';
 import '@blocknote/mantine/style.css';
@@ -11,6 +11,36 @@ import { useAuthStore } from '../../features/auth/store/useAuthStore';
 interface EditorPaneProps {
   pageId: string;
 }
+
+const CustomAddButton = ({ editor, hoveredBlockIdRef }: any) => {
+  const Components = useComponentsContext()!;
+  return (
+    <Components.SideMenu.Button
+      label="Click to add below"
+      icon={<Plus className="w-3.5 h-3.5" strokeWidth={2.5} />}
+      onClick={(e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const id = hoveredBlockIdRef.current;
+        if (!id) return;
+        
+        // Use the internal tiptap state to avoid 'no active cursor' errors
+        const block = editor.document.find((b: any) => b.id === id);
+        if (block) {
+          editor.insertBlocks([{ type: 'paragraph' }], block, 'after');
+          setTimeout(() => {
+            const blocks = editor.document;
+            const idx = blocks.findIndex((b: any) => b.id === block.id);
+            if (idx !== -1 && blocks[idx + 1]) {
+              editor.setTextCursorPosition(blocks[idx + 1], 'start');
+              editor.focus();
+            }
+          }, 50);
+        }
+      }}
+    />
+  );
+};
 
 export const EditorPane = ({ pageId }: EditorPaneProps) => {
   const pages = useAppStore((state) => state.pages);
@@ -28,6 +58,21 @@ export const EditorPane = ({ pageId }: EditorPaneProps) => {
 
   // Fetch full page content on mount
   const [initialContent, setInitialContent] = useState<string | undefined | null>(undefined);
+
+  // Track hovered block for the side menu + button
+  const hoveredBlockIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    const handleMouseOver = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const blockContainer = target.closest('[data-node-type="blockOuter"]');
+      if (blockContainer) {
+        hoveredBlockIdRef.current = blockContainer.getAttribute('data-id');
+      }
+    };
+    document.addEventListener('mouseover', handleMouseOver);
+    return () => document.removeEventListener('mouseover', handleMouseOver);
+  }, []);
 
   useEffect(() => {
     let isMounted = true;
@@ -184,32 +229,7 @@ export const EditorPane = ({ pageId }: EditorPaneProps) => {
             <SideMenuController
               sideMenu={(props) => (
                 <SideMenu {...props}>
-                  <div
-                    className="p-1 cursor-pointer text-text-muted hover:bg-bg-hover hover:text-text-main rounded transition-colors"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      try {
-                        const currentBlock = editor.getTextCursorPosition().block;
-                        editor.insertBlocks([{ type: 'paragraph' }], currentBlock, 'after');
-                        // Try to focus the newly inserted block
-                        setTimeout(() => {
-                          const blocks = editor.document;
-                          const currentIndex = blocks.findIndex(b => b.id === currentBlock.id);
-                          if (currentIndex !== -1 && blocks[currentIndex + 1]) {
-                            editor.setTextCursorPosition(blocks[currentIndex + 1], 'start');
-                          }
-                        }, 50);
-                      } catch (err) {
-                        // Fallback if editor has no active cursor
-                        const blocks = editor.document;
-                        const lastBlock = blocks[blocks.length - 1];
-                        editor.insertBlocks([{ type: 'paragraph' }], lastBlock, 'after');
-                      }
-                    }}
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </div>
+                  <CustomAddButton editor={editor} hoveredBlockIdRef={hoveredBlockIdRef} />
                   <DragHandleButton {...props} />
                 </SideMenu>
               )}
