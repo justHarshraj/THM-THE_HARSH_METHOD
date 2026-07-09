@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../../store';
-import { Search, MoreHorizontal, SquarePen, PanelLeft, Pin } from 'lucide-react';
+import { Search, MoreHorizontal, SquarePen, PanelLeft, Pin, Plus } from 'lucide-react';
 import { EditorPane } from './EditorPane';
 import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
@@ -43,51 +43,30 @@ export const NotesLayout = () => {
   }
 
   return (
-    <div className="flex h-full w-full flex-col bg-[#1C1C1E] overflow-hidden">
-      {/* Header Bar */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle bg-bg-app shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="flex gap-2">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
-            <div className="w-3 h-3 rounded-full bg-green-500" />
-          </div>
-          <button className="p-1.5 rounded-md hover:bg-bg-hover text-text-muted transition-colors">
-            <PanelLeft className="w-4 h-4" />
-          </button>
-        </div>
-        
-        <div className="flex flex-col items-center">
-          <h2 className="font-semibold text-sm text-text-main leading-tight">Notes</h2>
-          <span className="text-xs text-text-muted">{filteredPages.length} notes</span>
-        </div>
-        
-        <div className="flex items-center gap-3">
-          <button className="p-1.5 rounded-md hover:bg-bg-hover text-text-muted transition-colors">
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
-          <button 
-            onClick={handleCreatePage}
-            className="p-1.5 rounded-md hover:bg-bg-hover text-text-muted transition-colors"
-          >
-            <SquarePen className="w-4 h-4" />
-          </button>
-          <div className="relative">
-            <Search className="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-text-muted" />
-            <input 
-              type="text" 
-              placeholder="Search" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-8 pr-3 py-1.5 bg-[#2C2C2E] text-sm text-text-main rounded-md border border-transparent focus:border-border-subtle focus:outline-none w-48 placeholder:text-text-muted"
-            />
-          </div>
-        </div>
-      </div>
+    <div className="flex h-full w-full flex-col bg-[#202020] overflow-hidden">
+
 
       {/* Grid Content */}
-      <div className="flex-1 overflow-y-auto p-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+      <div className="flex-1 overflow-y-auto p-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-6 gap-y-10 max-w-[1600px] mx-auto">
+          
+          {/* Add Note Card */}
+          <div 
+            onClick={handleCreatePage}
+            className="flex flex-col gap-3 group cursor-pointer"
+          >
+            <div className="h-44 rounded-xl overflow-hidden relative transition-all duration-200 bg-[#282828] border border-transparent hover:border-[#404040] flex items-center justify-center hover:bg-[#2D2D2D]">
+              <Plus className="w-8 h-8 text-[#888888] group-hover:text-[#E0E0E0] transition-colors" />
+            </div>
+            <div className="flex flex-col items-center text-center">
+              <h3 className="text-base font-medium text-[#E0E0E0] line-clamp-1">
+                Add Note
+              </h3>
+              <span className="text-sm text-[#888888] mt-0.5">New</span>
+            </div>
+          </div>
+
+          {/* Note Cards */}
           {filteredPages.map((page, index) => {
             const isPinned = index === 0; // Just mock pinning the first note like in screenshot
             const formattedDate = format(new Date(page.updatedAt || page.createdAt), 'dd/MM/yy');
@@ -100,23 +79,21 @@ export const NotesLayout = () => {
               >
                 {/* Preview Box */}
                 <div className={cn(
-                  "h-40 rounded-xl overflow-hidden relative transition-all duration-200",
-                  "bg-[#2C2C2E] border-2",
-                  isPinned ? "border-yellow-500" : "border-transparent group-hover:border-border-subtle"
+                  "h-44 rounded-xl overflow-hidden relative transition-all duration-200",
+                  "bg-[#282828] border border-transparent hover:border-[#404040] hover:bg-[#2D2D2D]"
                 )}>
                   {/* Pinned Icon */}
                   {isPinned && (
-                    <div className="absolute top-3 right-3 text-text-muted">
-                      <Pin className="w-4 h-4 fill-current rotate-45" />
+                    <div className="absolute top-4 right-4 text-[#888888] z-10">
+                      <Pin className="w-4 h-4 fill-current rotate-45 opacity-60" />
                     </div>
                   )}
 
                   {page.coverImage ? (
                     <img src={page.coverImage} alt="Cover" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="p-4 w-full h-full text-xs text-text-muted break-words overflow-hidden opacity-70">
-                      {/* Fake preview of content if it was flat text. Since it's JSON from blocknote, just render a snippet if possible */}
-                      <p className="line-clamp-6 text-left text-[11px] leading-snug font-medium text-text-muted/90 p-1">
+                    <div className="p-5 w-full h-full text-[13px] text-[#E0E0E0] break-words overflow-hidden opacity-90">
+                      <p className="line-clamp-[7] text-left leading-relaxed font-semibold">
                         {page.previewText || page.content?.previewText || "Empty Note Content"}
                       </p>
                     </div>
@@ -126,12 +103,12 @@ export const NotesLayout = () => {
                 {/* Title & Date */}
                 <div className="flex flex-col items-center text-center">
                   <div className="flex items-center gap-1.5">
-                    {page.icon && <span className="text-sm">{page.icon}</span>}
-                    <h3 className="text-sm font-medium text-text-main line-clamp-1">
+                    {page.icon && <span className="text-base">{page.icon}</span>}
+                    <h3 className="text-base font-medium text-[#E0E0E0] line-clamp-1">
                       {page.title || 'Untitled Note'}
                     </h3>
                   </div>
-                  <span className="text-xs text-text-muted mt-0.5">{formattedDate}</span>
+                  <span className="text-sm text-[#888888] mt-0.5">{formattedDate}</span>
                 </div>
               </div>
             );
