@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAppStore } from '../../store';
-import { useCreateBlockNote, SideMenuController, SuggestionMenuController } from '@blocknote/react';
+import { useCreateBlockNote } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/mantine';
 import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import '@blocknote/core/fonts/inter.css';
@@ -280,17 +280,7 @@ export const EditorPane = ({ pageId, onClose }: EditorPaneProps) => {
             editor={editor} 
             onChange={handleEditorChange}
             theme="dark"
-          >
-            {/* Disable slash menu by returning no items */}
-            <SuggestionMenuController
-              triggerCharacter={"/"}
-              getItems={async () => []}
-            />
-            {/* Disable the side menu (drag handle & + button) */}
-            <SideMenuController
-              sideMenu={() => null}
-            />
-          </BlockNoteView>
+          />
         </div>
         
         {/* Save indicator */}

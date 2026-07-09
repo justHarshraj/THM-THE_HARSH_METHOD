@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../../store';
-import { Pin, Plus } from 'lucide-react';
+import { Pin, Plus, Trash2, Edit2 } from 'lucide-react';
 import { EditorPane } from './EditorPane';
 import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 export const NotesLayout = () => {
   const pages = useAppStore((state) => state.pages);
   const addPage = useAppStore((state) => state.addPage);
+  const deletePage = useAppStore((state) => state.deletePage);
   
   const [activePageId, setActivePageId] = useState<string | null>(null);
   const [searchQuery] = useState('');
@@ -84,10 +85,34 @@ export const NotesLayout = () => {
                 )}>
                   {/* Pinned Icon */}
                   {isPinned && (
-                    <div className="absolute top-4 right-4 text-[#888888] z-10">
+                    <div className="absolute top-4 left-4 text-[#888888] z-10">
                       <Pin className="w-4 h-4 fill-current rotate-45 opacity-60" />
                     </div>
                   )}
+
+                  {/* Actions (Edit/Delete) */}
+                  <div className="absolute top-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity flex gap-2 z-20">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActivePageId(page.id);
+                      }}
+                      className="p-1.5 bg-[#282828]/80 backdrop-blur-md rounded-md text-[#888888] hover:text-[#E0E0E0] transition-colors border border-[#404040] hover:bg-[#404040]"
+                    >
+                      <Edit2 className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        if (confirm('Are you sure you want to delete this note?')) {
+                          await deletePage(page.id);
+                        }
+                      }}
+                      className="p-1.5 bg-[#282828]/80 backdrop-blur-md rounded-md text-[#888888] hover:text-red-400 transition-colors border border-[#404040] hover:bg-[#404040]"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
 
                   {page.coverImage ? (
                     <img src={page.coverImage} alt="Cover" className="w-full h-full object-cover" />
