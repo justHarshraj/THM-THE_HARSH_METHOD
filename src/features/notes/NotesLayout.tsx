@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { useAppStore } from '../../store';
-import { Search, MoreHorizontal, SquarePen, PanelLeft, Pin, Plus } from 'lucide-react';
+import { Pin, Plus } from 'lucide-react';
 import { EditorPane } from './EditorPane';
 import { cn } from '../../lib/utils';
 import { format } from 'date-fns';
@@ -10,7 +10,7 @@ export const NotesLayout = () => {
   const addPage = useAppStore((state) => state.addPage);
   
   const [activePageId, setActivePageId] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery] = useState('');
 
   // We only show top level pages in the grid for now, or flat list
   const filteredPages = useMemo(() => {
