@@ -5,8 +5,7 @@ import {
   CheckSquare, 
   LayoutDashboard, 
   Link as LinkIcon, 
-  BarChart2, 
-  BookOpen,
+  BarChart2,
   X,
   Timer as TimerIcon,
   Calendar
@@ -21,7 +20,6 @@ const navItems = [
   { name: 'Todo Lists', path: '/todos', icon: CheckSquare },
   { name: 'Link Vault', path: '/links', icon: LinkIcon },
   { name: 'Focus Timer', path: '/timer', icon: TimerIcon },
-  { name: 'Notes', path: '/notes', icon: BookOpen },
   { name: 'Statistics', path: '/statistics', icon: BarChart2 },
 ];
 
