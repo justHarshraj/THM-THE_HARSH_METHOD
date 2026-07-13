@@ -332,6 +332,31 @@ app.post('/api/links', async (req: AuthRequest, res): Promise<void> => {
   }
 });
 
+app.put('/api/links/:id', async (req: AuthRequest, res) => {
+  try {
+    const id = req.params.id as string;
+    
+    // Prevent Mass Assignment
+    const { url, title, description, category, icon } = req.body;
+    const updateData = { url, title, description, category, icon };
+    Object.keys(updateData).forEach(key => (updateData as any)[key] === undefined && delete (updateData as any)[key]);
+
+    const updatedLink = await prisma.link.update({
+      where: { id, userId: req.user!.id },
+      data: updateData
+    });
+    res.json(updatedLink);
+  } catch (error) {
+    if (error && (error as any).code === 'P2025') {
+      res.status(404).json({ error: 'Record not found' });
+      return;
+    }
+
+    console.error('Update link error:', error);
+    res.status(500).json({ error: 'Failed to update link' });
+  }
+});
+
 app.delete('/api/links/:id', async (req: AuthRequest, res) => {
   try {
     const id = req.params.id as string;

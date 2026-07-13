@@ -161,7 +161,7 @@ export const useAppStore = create<AppState>()((set) => ({
 
   setTimerMode: (mode) => set({ timerMode: mode }),
   setTimerTime: (timeOrUpdater) => set((state) => ({
-    timerTime: typeof timeOrUpdater === 'function' ? timeOrUpdater(state.timerTime) : timeOrUpdater
+    timerTime: Math.floor(typeof timeOrUpdater === 'function' ? timeOrUpdater(state.timerTime) : timeOrUpdater)
   })),
   setTimerDuration: (mode, duration) => set((state) => ({
     timerDurations: { ...state.timerDurations, [mode]: duration }

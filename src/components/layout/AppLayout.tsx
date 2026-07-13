@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { useAppStore } from '../../store';
@@ -22,43 +22,80 @@ export function AppLayout() {
     addTimeSession
   } = useAppStore();
 
+  // Wall-clock anchor: records the real timestamp when the timer was last started/resumed,
+  // along with the timerTime value at that moment. This lets us compute elapsed time from
+  // Date.now() instead of relying on setInterval increment accuracy.
+  const anchorRef = useRef<{ wallTime: number; timerValue: number } | null>(null);
+
+  // Set anchor when timer starts or resumes
   useEffect(() => {
-    let interval: ReturnType<typeof setInterval>;
-    
-    // Stopwatch counts up, everything else (Timer, Focus, Break) counts down.
-    const isCountdown = timerMode !== 'Stopwatch';
-    
-    if (timerIsActive && (!isCountdown || timerTime > 0)) {
-      interval = setInterval(() => {
-        setTimerTime((prev) => isCountdown ? prev - 1 : prev + 1);
-      }, 1000);
-    } else if (timerIsActive && isCountdown && timerTime === 0) {
-      // Timer finished
-      setTimerIsActive(false);
-      
-      if (timerMode === 'Focus') {
-        // Save the session
-        addTimeSession({
-          name: timerSessionName || 'Untitled Session',
-          duration: timerDurations.Focus,
-          date: new Date().toISOString()
-        });
-        
-        // Auto-switch to break
-        setTimerMode('Break');
-        setTimerTime(timerDurations.Break);
-      } else if (timerMode === 'Break') {
-        // Auto-switch to focus
-        setTimerMode('Focus');
-        setTimerTime(timerDurations.Focus);
-      } else if (timerMode === 'Timer') {
-        // Timer countdown finished
-        setTimerTime(timerDurations.Timer);
+    if (timerIsActive) {
+      // Only set anchor if not already set (avoid resetting on every render)
+      if (!anchorRef.current) {
+        anchorRef.current = { wallTime: Date.now(), timerValue: timerTime };
       }
+    } else {
+      anchorRef.current = null;
     }
+  }, [timerIsActive]); // intentionally only depends on timerIsActive
+
+  // Handle countdown completion
+  const handleCountdownComplete = useCallback(() => {
+    setTimerIsActive(false);
+
+    if (timerMode === 'Focus') {
+      // Save the session
+      addTimeSession({
+        name: timerSessionName || 'Untitled Session',
+        duration: timerDurations.Focus,
+        date: new Date().toISOString()
+      });
+      // Auto-switch to break
+      setTimerMode('Break');
+      setTimerTime(timerDurations.Break);
+    } else if (timerMode === 'Break') {
+      // Auto-switch to focus
+      setTimerMode('Focus');
+      setTimerTime(timerDurations.Focus);
+    } else if (timerMode === 'Timer') {
+      // Timer countdown finished
+      setTimerTime(timerDurations.Timer);
+    }
+  }, [timerMode, timerSessionName, timerDurations, addTimeSession, setTimerIsActive, setTimerMode, setTimerTime]);
+
+  // Main tick effect — runs a fast interval (250ms) and computes the correct
+  // timer value from the wall clock. This is immune to JS timer drift and
+  // React re-render delays. The interval does NOT depend on timerTime,
+  // so it is never torn down/recreated during counting.
+  useEffect(() => {
+    if (!timerIsActive) return;
+
+    const isCountdown = timerMode !== 'Stopwatch';
+
+    const tick = () => {
+      const anchor = anchorRef.current;
+      if (!anchor) return;
+
+      const elapsedSeconds = Math.floor((Date.now() - anchor.wallTime) / 1000);
+
+      if (isCountdown) {
+        const newTime = Math.max(0, anchor.timerValue - elapsedSeconds);
+        setTimerTime(newTime);
+        if (newTime === 0) {
+          handleCountdownComplete();
+        }
+      } else {
+        // Stopwatch counts up
+        setTimerTime(anchor.timerValue + elapsedSeconds);
+      }
+    };
+
+    // Tick immediately, then every 250ms for smooth & accurate updates
+    tick();
+    const interval = setInterval(tick, 250);
 
     return () => clearInterval(interval);
-  }, [timerIsActive, timerTime, timerMode, timerSessionName, timerDurations, addTimeSession, setTimerTime, setTimerIsActive, setTimerMode]);
+  }, [timerIsActive, timerMode, handleCountdownComplete, setTimerTime]);
 
   return (
     <div className="flex h-screen bg-bg-app text-text-main overflow-hidden font-sans relative">
